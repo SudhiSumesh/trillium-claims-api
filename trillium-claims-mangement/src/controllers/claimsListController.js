@@ -1,36 +1,37 @@
 import { executeQuery } from "../config/dbConfig.js";
 //Get Claims
 export const claimsListController = async (req, res) => {
-  try {
-    const {
-      start = 0,
-      limit = 10,
-      clinicId,
-      providerIds = "",
-      serviceIds = "",
-      status = "",
-      startDate,
-      endDate,
-      facilityIds = "",
-    } = req.query;
+    try {
+      const {
+        start = 0,
+        limit = 10,
+        clinicId,
+        providerIds = "",
+        serviceIds = "",
+        status = "",
+        startDate,
+        endDate,
+        facilityIds = "",
+        patientName = "",
+      } = req.query;
 
-    if (!clinicId) {
-      return res.status(400).send("Clinic ID is required");
-    }
+      if (!clinicId) {
+        return res.status(400).send("Clinic ID is required");
+      }
 
-    // Convert the comma-separated string into an array
-    const providerIdsArray = providerIds ? providerIds.split(",") : [];
-    const serviceIdsArray = serviceIds ? serviceIds.split(",") : [];
-    const statusArray = status ? status.split(",") : [];
-    const facilityIdsArray = facilityIds ? facilityIds.split(",") : [];
+      // Convert the comma-separated string into an array
+      const providerIdsArray = providerIds ? providerIds.split(",") : [];
+      const serviceIdsArray = serviceIds ? serviceIds.split(",") : [];
+      const statusArray = status ? status.split(",") : [];
+      const facilityIdsArray = facilityIds ? facilityIds.split(",") : [];
 
-    // Create placeholders for the query
-    const providerPlaceholders = providerIdsArray.map(() => "?").join(",");
-    const servicePlaceholders = serviceIdsArray.map(() => "?").join(",");
-    const statusPlaceholders = statusArray.map(() => "?").join(",");
-    const facilityPlaceholders = facilityIdsArray.map(() => "?").join(",");
+      // Create placeholders for the query
+      const providerPlaceholders = providerIdsArray.map(() => "?").join(",");
+      const servicePlaceholders = serviceIdsArray.map(() => "?").join(",");
+      const statusPlaceholders = statusArray.map(() => "?").join(",");
+      const facilityPlaceholders = facilityIdsArray.map(() => "?").join(",");
 
-    const query = `
+      const query = `
       SELECT 
         CLAIM_ID,
         PATIENT_PENDING,
@@ -68,76 +69,78 @@ export const claimsListController = async (req, res) => {
           ? `AND FACILITY_ID IN (${facilityPlaceholders})`
           : ""
       }
+      ${patientName ? "AND PATIENT_NAME LIKE ?" : ""}
       LIMIT ?, ?
     `;
 
-    const queryParams = [
-      clinicId,
-      ...providerIdsArray,
-      ...serviceIdsArray,
-      ...statusArray,
-      ...(startDate ? [startDate] : []),
-      ...(endDate ? [endDate] : []),
-      ...facilityIdsArray,
-      parseInt(start),
-      parseInt(limit),
-    ];
+      const queryParams = [
+        clinicId,
+        ...providerIdsArray,
+        ...serviceIdsArray,
+        ...statusArray,
+        ...(startDate ? [startDate] : []),
+        ...(endDate ? [endDate] : []),
+        ...facilityIdsArray,
+        ...(patientName ? [`%${patientName}%`] : []),
+        parseInt(start),
+        parseInt(limit),
+      ];
 
-    const results = await executeQuery(query, queryParams);
+      const results = await executeQuery(query, queryParams);
 
-    const reportSummary = {
-      dtotalCharges: 0,
-      dtotalPatientBalance: 0,
-      dtotalInsuranceBalance: 0,
-      dtotalPayments: 0,
-    };
-
-    const providerSummary = results.map((item) => {
-      const dcharges = parseFloat(item.BILLED) || 0;
-      const patientBalance = parseFloat(item.PATIENT_PENDING) || 0;
-      const insuranceBalance = parseFloat(item.PRIMARY_PENDING) || 0;
-      const dpayments = dcharges - (insuranceBalance + patientBalance);
-
-      reportSummary.dtotalCharges += dcharges;
-      reportSummary.dtotalPatientBalance += patientBalance;
-      reportSummary.dtotalInsuranceBalance += insuranceBalance;
-      reportSummary.dtotalPayments += dpayments;
-
-      return {
-        patientBalance,
-        insuranceBalance,
-        serviceId: item.APPT_TYPE,
-        serviceName: item.APPOINTMENT_TYPE,
-        claimStatus: item.STATUS,
-        claimId: item.CLAIM_ID,
-        facilityName: item.FACILITY_NAME,
-        payorId: item.PRIMARY_PAYER_ID,
-        payorName: item.PRIMARY_PAYER_NAME,
-        iproviderId: item.PROVIDER_ID,
-        dcharges,
-        dpayments,
-        ipatientId: item.VISIT_ID,
-        sdos: item.DOS,
-        smrn: item.MRN,
-        sproviderName: item.PROVIDER_NAME,
-        spatientName: item.PATIENT_NAME,
+      const reportSummary = {
+        dtotalCharges: 0,
+        dtotalPatientBalance: 0,
+        dtotalInsuranceBalance: 0,
+        dtotalPayments: 0,
       };
-    });
 
-    res.json({
-      start: parseInt(start),
-      totalRecords: results.length,
-      limit: parseInt(limit),
-      results: null,
-      result: {
-        reportSummary,
-        providerSummary,
-      },
-    });
-  } catch (error) {
-    console.error("Database query error:", error);
-    res.status(500).send("Internal Server Error");
-  }
+      const providerSummary = results.map((item) => {
+        const dcharges = parseFloat(item.BILLED) || 0;
+        const patientBalance = parseFloat(item.PATIENT_PENDING) || 0;
+        const insuranceBalance = parseFloat(item.PRIMARY_PENDING) || 0;
+        const dpayments = dcharges - (insuranceBalance + patientBalance);
+
+        reportSummary.dtotalCharges += dcharges;
+        reportSummary.dtotalPatientBalance += patientBalance;
+        reportSummary.dtotalInsuranceBalance += insuranceBalance;
+        reportSummary.dtotalPayments += dpayments;
+
+        return {
+          patientBalance,
+          insuranceBalance,
+          serviceId: item.APPT_TYPE,
+          serviceName: item.APPOINTMENT_TYPE,
+          claimStatus: item.STATUS,
+          claimId: item.CLAIM_ID,
+          facilityName: item.FACILITY_NAME,
+          payorId: item.PRIMARY_PAYER_ID,
+          payorName: item.PRIMARY_PAYER_NAME,
+          iproviderId: item.PROVIDER_ID,
+          dcharges,
+          dpayments,
+          ipatientId: item.VISIT_ID,
+          sdos: item.DOS,
+          smrn: item.MRN,
+          sproviderName: item.PROVIDER_NAME,
+          spatientName: item.PATIENT_NAME,
+        };
+      });
+
+      res.json({
+        start: parseInt(start),
+        totalRecords: results.length,
+        limit: parseInt(limit),
+        results: null,
+        result: {
+          reportSummary,
+          providerSummary,
+        },
+      });
+    } catch (error) {
+      console.error("Database query error:", error);
+      res.status(500).send("Internal Server Error");
+    }
 };
 
 //add Claim
