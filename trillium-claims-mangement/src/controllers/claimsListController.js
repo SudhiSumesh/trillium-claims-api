@@ -16,7 +16,7 @@ export const claimsListController = async (req, res) => {
       } = req.query;
 
       if (!clinicId) {
-        return res.status(400).send("Clinic ID is required");
+        return res.status(400).join({message:"Clinic ID is required"});
       }
 
       // Convert the comma-separated string into an array
@@ -46,6 +46,7 @@ export const claimsListController = async (req, res) => {
         PATIENT_NAME,
         PROVIDER_ID,
         VISIT_ID,
+        PATIENT_ID,
         PRIMARY_PAYER_NAME,
         PRIMARY_PENDING,
         APPT_TYPE
@@ -119,7 +120,8 @@ export const claimsListController = async (req, res) => {
           iproviderId: item.PROVIDER_ID,
           dcharges,
           dpayments,
-          ipatientId: item.VISIT_ID,
+          ipatientId: item.PATIENT_ID, //check
+          visitId:item.VISIT_ID,
           sdos: item.DOS,
           smrn: item.MRN,
           sproviderName: item.PROVIDER_NAME,
@@ -127,7 +129,7 @@ export const claimsListController = async (req, res) => {
         };
       });
 
-      res.json({
+      res.status(200).json({
         start: parseInt(start),
         totalRecords: results.length,
         limit: parseInt(limit),
@@ -206,7 +208,7 @@ export const addClaimController = async (req, res) => {
       providerName ?? null,
       patientName ?? null,
       providerId ?? null,
-      visitId ?? null,
+      visitId ?? null, // check is visit is need when add claim
       primaryPayerName ?? null,
       primaryPending ?? null,
       apptType ?? null,
@@ -305,7 +307,7 @@ export const deleteClaimController = async (req, res) => {
     const { claimId } = req.params;
 
     if (!claimId) {
-      return res.status(400).send("Claim ID is required");
+      return res.status(400).json({ message: "claim ID is required" });
     }
 
     // Check if the claimId exists
