@@ -1,11 +1,15 @@
 import { executeQuery } from "../config/dbConfig.js";
+import dotenv from "dotenv";
+
+dotenv.config();
+const TABLE = process.env.TABLE;
 
 //get charges based on claim
 export const chargesController = async (req, res) => {
   try {
     const { claimId } = req.params;
     if (!claimId) {
-      return res.status(400).json({ message: "claim ID is required" });
+      return res.status(400).json({ message: "Claim ID is required" });
     }
     // Check if the claimId exists
     const checkQuery = `
@@ -18,7 +22,7 @@ export const chargesController = async (req, res) => {
     if (checkResult[0].count === 0) {
       return res.status(404).send({ message: "Claim ID not found" });
     }
-    const query = `SELECT PROCEDURE_ID ,PROCEDURE_CODE_ID ,PROCEDURE_CODE,UNIT,FEE,AMOUNT,POS,TOS,NDC_NUMBER,NDC_UNITS,NDC_MEASURE,COMMENTS,SEQUENCE_NUM,DESCRIPT ,DIAGNOSIS_POINTER1,DIAGNOSIS_POINTER2,DIAGNOSIS_POINTER3,DIAGNOSIS_POINTER4,DIAGNOSIS_POINTER5,DIAGNOSIS_POINTER6,DIAGNOSIS_POINTER7,DIAGNOSIS_POINTER8,MODIFIER1,MODIFIER2,MODIFIER3,MODIFIER4 FROM visit_procedure WHERE CLAIM_ID = ?`;
+    const query = `SELECT PROCEDURE_ID ,PROCEDURE_CODE_ID ,PROCEDURE_CODE,UNIT,FEE,AMOUNT,POS,TOS,NDC_NUMBER,NDC_UNITS,NDC_MEASURE,COMMENTS,SEQUENCE_NUM,DESCRIPT ,DIAGNOSIS_POINTER1,DIAGNOSIS_POINTER2,DIAGNOSIS_POINTER3,DIAGNOSIS_POINTER4,DIAGNOSIS_POINTER5,DIAGNOSIS_POINTER6,DIAGNOSIS_POINTER7,DIAGNOSIS_POINTER8,MODIFIER1,MODIFIER2,MODIFIER3,MODIFIER4 FROM ${TABLE} WHERE CLAIM_ID = ?`;
 
     const results = await executeQuery(query, [claimId]);
     const visitServiceDtoList = results.map((item) => {
@@ -100,7 +104,7 @@ export const addChargeController = async (req, res) => {
     }
 
     const query = `
-      INSERT INTO visit_procedure (
+      INSERT INTO ${TABLE} (
         CLINIC_ID,
         CLAIM_ID,
         VISIT_ID,
@@ -213,7 +217,7 @@ export const updateChargeController = async (req, res) => {
     // Check if the procedureId exists
     const checkQuery = `
       SELECT COUNT(*) AS count 
-      FROM visit_procedure 
+      FROM ${TABLE} 
       WHERE PROCEDURE_ID = ?
     `;
     const checkResult = await executeQuery(checkQuery, [procedureId]);
@@ -222,7 +226,7 @@ export const updateChargeController = async (req, res) => {
       return res.status(404).send({ message: "Procedure ID not found" });
     }
     const query = `
-      UPDATE visit_procedure
+      UPDATE ${TABLE}
       SET
         PROCEDURE_CODE_ID = ?,
         PROCEDURE_CODE = ?,
@@ -303,7 +307,7 @@ export const deleteChargeController = async (req, res) => {
     // Check if the procedureId exists
     const checkQuery = `
       SELECT COUNT(*) AS count 
-      FROM visit_procedure 
+      FROM ${TABLE} 
       WHERE PROCEDURE_ID = ?
     `;
     const checkResult = await executeQuery(checkQuery, [procedureId]);
@@ -313,7 +317,7 @@ export const deleteChargeController = async (req, res) => {
     }
 
     const query = `
-      DELETE FROM visit_procedure 
+      DELETE FROM ${TABLE} 
       WHERE PROCEDURE_ID = ?
     `;
 

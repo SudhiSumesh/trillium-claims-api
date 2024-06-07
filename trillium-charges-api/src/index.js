@@ -13,6 +13,7 @@ const corsOptions = {
 //Middleware
 // Use Helmet!
 app.use(helmet());
+
 app.use(cors(corsOptions));
 app.use(express.json());
 
