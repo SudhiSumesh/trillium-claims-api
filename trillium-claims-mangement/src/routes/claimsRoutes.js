@@ -5,6 +5,7 @@ import {
   deleteClaimController,
   updateClaimController,
 } from "../controllers/claimsListController.js";
+import { patientSearchController } from "../controllers/patientController.js";
 
 const router = express.Router();
 
@@ -21,4 +22,6 @@ router.put("/updateClaim", updateClaimController);
 // Delete a claim
 router.delete("/deleteClaim/:claimId", deleteClaimController);
 
+//search patient
+router.get("/searchPatient", patientSearchController);
 export default router;

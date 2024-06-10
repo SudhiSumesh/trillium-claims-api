@@ -1,5 +1,6 @@
 import express from "express";
 import { diagnosisController, updateDiagnosisController } from "../controllers/diagnosisController.js";
+import { icdSearchController } from "../controllers/icdControlller.js";
 const router = express.Router();
 
 // Routes
@@ -8,4 +9,7 @@ router.get("/getDiagnosis/:visitId",diagnosisController);
 
 //UPDATE 
 router.put('/editDiagnosis',updateDiagnosisController)
+//search icd
+router.get("/icd-search", icdSearchController);
+
 export default router;

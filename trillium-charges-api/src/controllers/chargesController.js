@@ -99,7 +99,7 @@ export const addChargeController = async (req, res) => {
       modifier4 = "",
     } = req.body;
 
-    if (!claimId || !clinicId || !visitId) {
+    if (!claimId || !clinicId || !visitId || !patientId) {
       return res.status(400).json({ message: " Required fields are missing" });
     }
 
@@ -329,3 +329,4 @@ export const deleteChargeController = async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 };
+

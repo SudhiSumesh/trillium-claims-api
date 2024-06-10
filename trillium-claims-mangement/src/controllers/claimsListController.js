@@ -54,6 +54,10 @@ export const claimsListController = async (req, res) => {
         PATIENT_ID,
         PRIMARY_PAYER_NAME,
         PRIMARY_PENDING,
+        PRIMARY_PAID,
+        SECONDARY_PAID,
+        TERTIARY_PAID,
+        PATIENT_PAID,
         APPT_TYPE
       FROM ${TABLE}
       WHERE CLINIC_ID = ?
@@ -105,7 +109,11 @@ export const claimsListController = async (req, res) => {
       const dcharges = parseFloat(item.BILLED) || 0;
       const patientBalance = parseFloat(item.PATIENT_PENDING) || 0;
       const insuranceBalance = parseFloat(item.PRIMARY_PENDING) || 0;
-      const dpayments = dcharges - (insuranceBalance + patientBalance);
+      const dpayments =
+        (parseFloat(item.PRIMARY_PAID) || 0) +
+        (parseFloat(item.SECONDARY_PAID) || 0) +
+        (parseFloat(item.TERTIARY_PAID) || 0) +
+        (parseFloat(item.PATIENT_PAID) || 0);
 
       reportSummary.dtotalCharges += dcharges;
       reportSummary.dtotalPatientBalance += patientBalance;
@@ -173,7 +181,7 @@ export const addClaimController = async (req, res) => {
       apptType,
     } = req.body;
 
-    if (!clinicId || !patientName) {
+    if (!clinicId || !patientId) {
       return res.status(400).send("Required fields are missing");
     }
 
@@ -213,7 +221,7 @@ export const addClaimController = async (req, res) => {
       providerName ?? " ",
       patientName ?? "",
       providerId ?? 0,
-      visitId ?? 0, // check is visit is need when add claim
+      visitId ?? 0,
       primaryPayerName ?? "",
       primaryPending ?? 0, //ins balance
       apptType ?? null,
