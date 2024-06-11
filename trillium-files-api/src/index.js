@@ -1,12 +1,14 @@
 import express from "express";
 import helmet from "helmet";
 import cors from "cors";
-
+import dotenv from "dotenv";
+import fileRoutes from './routes/fileRoutes.js'
+dotenv.config();
 const app = express();
-const port = 3004;
+const port = 3004 || process.env.SERVER_PORT;
 
 const corsOptions = {
-  origin: "http://localhost:5173", // for vite application
+  origin: process.env.CLIENT_ENDPOINT,
   optionsSuccessStatus: 200,
 };
 
@@ -18,7 +20,7 @@ app.use(cors(corsOptions));
 app.use(express.json());
 
 //API Routes
-// app.use("/api/v1", );
+app.use("/api/v1", fileRoutes);
 
 app.listen(port, () => {
   console.log(`server running on port ${port}`);
