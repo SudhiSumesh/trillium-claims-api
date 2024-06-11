@@ -2,12 +2,14 @@ import express from "express";
 import helmet from "helmet";
 import cors from "cors";
 import claimsRoutes from './routes/claimsRoutes.js'
+import dotenv from "dotenv";
 
+dotenv.config();
 const app = express();
-const port =  3000;
+const port = 3000 || process.env.SERVER_PORT;
 
 const corsOptions = {
-  origin: "http://localhost:5173", // for vite application
+  origin: process.env.CLIENT_ENDPOINT,
   optionsSuccessStatus: 200,
 };
 
