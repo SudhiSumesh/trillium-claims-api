@@ -9,7 +9,13 @@ export const diagnosisController = async (req, res) => {
   try {
     const { visitId } = req.params;
     if (!visitId) {
-      return res.status(400).json({ message: "Visit ID is required" });
+      return res.status(400).json({
+        responseCode: 1,
+        responseType: 1,
+        data: [],
+        error: "Visit Id is required",
+        accessToken: null,
+      });
     }
     // Check if the visitId exists
     const checkQuery = `
@@ -20,7 +26,13 @@ export const diagnosisController = async (req, res) => {
     const checkResult = await executeQuery(checkQuery, [visitId]);
 
     if (checkResult[0].count === 0) {
-      return res.status(404).send({ message: "Visit Id not found" });
+      return res.status(404).json({
+        responseCode: 1,
+        responseType: 1,
+        data: [],
+        error: "Visit Id not found",
+        accessToken: null,
+      });
     }
 
     const query = `SELECT DIAGNOSIS_ID, ICD_ID_ONE, ICD_ID_TWO, ICD_ID_THREE, ICD_ID_FOUR, ICD_ID_FIVE, ICD_ID_SIX, ICD_ID_SEVEN, ICD_ID_EIGHT, ICD_CODE_ONE, ICD_CODE_TWO, ICD_CODE_THREE, ICD_CODE_FOUR, ICD_CODE_FIVE, ICD_CODE_SIX, ICD_CODE_SEVEN, ICD_CODE_EIGHT, ICD_CODE_ONE_DESCRIPTION, ICD_CODE_TWO_DESCRIPTION, ICD_CODE_THREE_DESCRIPTION, ICD_CODE_FOUR_DESCRIPTION, ICD_CODE_FIVE_DESCRIPTION, ICD_CODE_SIX_DESCRIPTION, ICD_CODE_SEVEN_DESCRIPTION, ICD_CODE_EIGHT_DESCRIPTION FROM ${TABLE} WHERE VISIT_ID= ?`;
@@ -80,12 +92,23 @@ export const diagnosisController = async (req, res) => {
         },
       };
     });
-    res
-      .status(200)
-      .json({ responseCode: 0, responseType: 0, visitDiagnosisDtoList });
+    // console.log(results);
+    res.status(200).json({
+      responseCode: 0,
+      responseType: 0,
+      visitDiagnosisDtoList,
+      error: null,
+      accessToken: null,
+    });
   } catch (error) {
     console.error("Database query error");
-    res.status(500).send("Internal Server Error");
+    res.status(500).json({
+      responseCode: 1,
+      responseType: 1,
+      data: [],
+      error: "Internal Server Error",
+      accessToken: null,
+    });
   }
 };
 
@@ -95,7 +118,13 @@ export const updateDiagnosisController = async (req, res) => {
     const { diagnosisId, ...fieldsToUpdate } = req.body;
 
     if (!diagnosisId) {
-      return res.status(400).json({ message: "Diagnosis ID is required" });
+      return res.status(400).json({
+        responseCode: 1,
+        responseType: 1,
+        data: [],
+        error: "Diagnosis ID is required",
+        accessToken: null,
+      });
     }
 
     // Check if the diagnosisId exists and fetch the current values
@@ -107,7 +136,13 @@ export const updateDiagnosisController = async (req, res) => {
     const checkResult = await executeQuery(checkQuery, [diagnosisId]);
 
     if (checkResult.length === 0) {
-      return res.status(404).send({ message: "Diagnosis ID not found" });
+      return res.status(404).send({
+        responseCode: 1,
+        responseType: 1,
+        data: [],
+        error: "Diagnosis ID not found",
+        accessToken: null,
+      });
     }
 
     // Current values from the database
@@ -149,7 +184,13 @@ export const updateDiagnosisController = async (req, res) => {
     });
 
     if (columnsToUpdate.length === 0) {
-      return res.status(400).json({ message: "No valid fields to update" });
+      return res.status(400).json({
+        responseCode: 1,
+        responseType: 1,
+        data: { message: "No valid fields to update" },
+        error: "No valid fields to update",
+        accessToken: null,
+      });
     }
 
     queryParams.push(diagnosisId);
@@ -162,9 +203,21 @@ export const updateDiagnosisController = async (req, res) => {
 
     await executeQuery(query, queryParams);
 
-    res.status(200).json({ message: "Diagnosis updated successfully" });
+    res.status(200).json({
+      responseCode: 0,
+      responseType: 0,
+      data: { message: "Diagnosis updated successfully" },
+      error: null,
+      accessToken: null,
+    });
   } catch (error) {
     console.error("Database query error:", error);
-    res.status(500).send("Internal Server Error");
+    res.status(500).json({
+      responseCode: 1,
+      responseType: 1,
+      data: [],
+      error: "Internal Server Error",
+      accessToken: null,
+    });
   }
 };

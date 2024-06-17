@@ -21,7 +21,13 @@ export const claimsListController = async (req, res) => {
     } = req.query;
 
     if (!clinicId) {
-      return res.status(400).join({ message: "Clinic ID is required" });
+      return res.status(400).res.status(400).json({
+        responseCode: 1,
+        responseType: 1,
+        data: [],
+        error: "Clinic ID is required",
+        accessToken: null,
+      });
     }
 
     // Convert the comma-separated string into an array
@@ -43,6 +49,7 @@ export const claimsListController = async (req, res) => {
         APPOINTMENT_TYPE,
         STATUS,
         FACILITY_NAME,
+        FACILITY_ID,
         PRIMARY_PAYER_ID,
         BILLED,
         DOS,
@@ -128,6 +135,7 @@ export const claimsListController = async (req, res) => {
         claimStatus: item.STATUS,
         claimId: item.CLAIM_ID,
         facilityName: item.FACILITY_NAME,
+        facilityId:item.FACILITY_ID,
         payorId: item.PRIMARY_PAYER_ID,
         payorName: item.PRIMARY_PAYER_NAME,
         iproviderId: item.PROVIDER_ID,
@@ -154,7 +162,13 @@ export const claimsListController = async (req, res) => {
     });
   } catch (error) {
     console.error("Database query error:", error);
-    res.status(500).send("Internal Server Error");
+    res.status(500).json({
+      responseCode: 1,
+      responseType: 1,
+      data: [],
+      error: "Internal Server Error",
+      accessToken: null,
+    });
   }
 };
 
@@ -181,8 +195,14 @@ export const addClaimController = async (req, res) => {
       apptType,
     } = req.body;
 
-    if (!clinicId || !patientId) {
-      return res.status(400).send("Required fields are missing");
+    if (!clinicId || !patientId || !visitId || !providerId || !primaryPayerId) {
+      return res.status(400).json({
+        responseCode: 1,
+        responseType: 1,
+        data: [],
+        error: "Required fields are missing",
+        accessToken: null,
+      });
     }
 
     const query = `
@@ -209,7 +229,7 @@ export const addClaimController = async (req, res) => {
 
     const queryParams = [
       clinicId,
-      patientId ?? 0,
+      patientId,
       patientPending ?? 0, //pat balance
       appointmentType ?? null,
       status ?? 0,
@@ -229,38 +249,38 @@ export const addClaimController = async (req, res) => {
 
     await executeQuery(query, queryParams);
 
-    res.status(201).json({ message: "Claim added successfully" });
+    res.status(201).json({
+      responseCode: 0,
+      responseType: 0,
+      data: { message: "Claim added successfully" },
+      error: null,
+      accessToken: null,
+    });
   } catch (error) {
     console.error("Database query error:", error);
-    res.status(500).send("Internal Server Error");
+    res.status(500).json({
+      responseCode: 1,
+      responseType: 1,
+      data: [],
+      error: "Internal Server Error",
+      accessToken: null,
+    });
   }
 };
 
-//update claim
+// //update claim
 export const updateClaimController = async (req, res) => {
   try {
-    const {
-      claimId,
-      clinicId,
-      patientPending,
-      appointmentType,
-      status,
-      facilityName,
-      primaryPayerId,
-      billed,
-      dos,
-      mrn,
-      providerName,
-      patientName,
-      providerId,
-      visitId,
-      primaryPayerName,
-      primaryPending,
-      apptType,
-    } = req.body;
+    const { claimId } = req.body;
 
     if (!claimId) {
-      return res.status(400).send("Claim ID is required");
+      return res.status(400).json({
+        responseCode: 1,
+        responseType: 1,
+        data: [],
+        error: "Claim ID is required",
+        accessToken: null,
+      });
     }
 
     // Check if the claimId exists
@@ -272,59 +292,289 @@ export const updateClaimController = async (req, res) => {
     const checkResult = await executeQuery(checkQuery, [claimId]);
 
     if (checkResult[0].count === 0) {
-      return res.status(404).send({ message: "Claim ID not found" });
+      return res.status(404).json({
+        responseCode: 1,
+        responseType: 1,
+        data: [],
+        error: "Claim ID not found",
+        accessToken: null,
+      });
     }
+
+    // Prepare the columns and values for the update query
+    const updateFields = [];
+    const queryParams = [];
+
+    // Mapping of req.body keys to database column names
+    const columnMap = {
+      clinicId: "CLINIC_ID",
+      patientId: "PATIENT_ID",
+      providerId: "PROVIDER_ID",
+      visitId: "VISIT_ID",
+      primaryPayerId: "PRIMARY_PAYER_ID",
+      secondaryPayerId: "SECONDARY_PAYER_ID",
+      tertiaryPayerId: "TERTIARY_PAYER_ID",
+      primaryInsuranceId: "PRIMARY_INSURANCE_ID",
+      secondaryInsuranceId: "SECONDARY_INSURANCE_ID",
+      tertiaryInsuranceId: "TERTIARY_INSURANCE_ID",
+      generatedUserId: "GENERATED_USER_ID",
+      sequenceNum: "SEQUENCE_NUM",
+      recordType: "RECORD_TYPE",
+      dos: "DOS",
+      patientName: "PATIENT_NAME",
+      mrn: "MRN",
+      providerName: "PROVIDER_NAME",
+      primaryPayerName: "PRIMARY_PAYER_NAME",
+      billingMethod: "BILLING_METHOD",
+      status: "STATUS",
+      filingMode: "FILING_MODE",
+      readyToSent: "READY_TO_SENT",
+      multipleVisits: "MULTIPLE_VISITS",
+      hiden: "HIDEN",
+      primaryFiled: "PRIMARY_FILED",
+      primaryFiledDate: "PRIMARY_FILED_DATE",
+      secondaryFiled: "SECONDARY_FILED",
+      secondaryFiledDate: "SECONDARY_FILED_DATE",
+      tertiaryFiled: "TERTIARY_FILED",
+      tertiaryFiledDate: "TERTIARY_FILED_DATE",
+      primaryFileId1: "PRIMARY_FILE_ID1",
+      primaryFileName1: "PRIMARY_FILE_NAME1",
+      primaryPageNo1: "PRIMARY_PAGE_NO1",
+      primaryFileId2: "PRIMARY_FILE_ID2",
+      primaryFileName2: "PRIMARY_FILE_NAME2",
+      primaryPageNo2: "PRIMARY_PAGE_NO2",
+      secondaryFileId1: "SECONDARY_FILE_ID1",
+      secondaryFileName1: "SECONDARY_FILE_NAME1",
+      secondaryPageNo1: "SECONDARY_PAGE_NO1",
+      secondaryFileId2: "SECONDARY_FILE_ID2",
+      secondaryFileName2: "SECONDARY_FILE_NAME2",
+      secondaryPageNo2: "SECONDARY_PAGE_NO2",
+      tertiaryFileId1: "TERTIARY_FILE_ID1",
+      tertiaryFileName1: "TERTIARY_FILE_NAME1",
+      tertiaryPageNo1: "TERTIARY_PAGE_NO1",
+      tertiaryFileId2: "TERTIARY_FILE_ID2",
+      tertiaryFileName2: "TERTIARY_FILE_NAME2",
+      tertiaryPageNo2: "TERTIARY_PAGE_NO2",
+      priIcn: "PRI_ICN",
+      secIcn: "SEC_ICN",
+      terIcn: "TER_ICN",
+      billed: "BILLED",
+      adjustment: "ADJUSTMENT",
+      primaryPaid: "PRIMARY_PAID",
+      secondaryPaid: "SECONDARY_PAID",
+      tertiaryPaid: "TERTIARY_PAID",
+      patientPaid: "PATIENT_PAID",
+      primaryPending: "PRIMARY_PENDING",
+      secondaryPending: "SECONDARY_PENDING",
+      tertiaryPending: "TERTIARY_PENDING",
+      patientPending: "PATIENT_PENDING",
+      noteCount: "NOTE_COUNT",
+      overPaid: "OVER_PAID",
+      generatedDate: "GENERATED_DATE",
+      isArClaim: "IS_AR_CLAIM",
+      primaryFileId3: "PRIMARY_FILE_ID3",
+      secondaryFileId3: "SECONDARY_FILE_ID3",
+      tertiaryFileId3: "TERTIARY_FILE_ID3",
+      primaryFileName3: "PRIMARY_FILE_NAME3",
+      secondaryFileName3: "SECONDARY_FILE_NAME3",
+      tertiaryFileName3: "TERTIARY_FILE_NAME3",
+      primaryPageNo3: "PRIMARY_PAGE_NO3",
+      secondaryPageNo3: "SECONDARY_PAGE_NO3",
+      tertiaryPageNo3: "TERTIARY_PAGE_NO3",
+      hasIssue: "HAS_ISSUE",
+      primaryFilingLimit: "PRIMARY_FILING_LIMIT",
+      secondaryFilingLimit: "SECONDARY_FILING_LIMIT",
+      primaryChequeDate: "PRIMARY_CHEQUE_DATE",
+      internalStatus: "INTERNAL_STATUS",
+      facilityId: "FACILITY_ID",
+      facilityName: "FACILITY_NAME",
+      claimType: "CLAIM_TYPE",
+      secondaryPayerName: "SECONDARY_PAYER_NAME",
+      dosTo: "DOS_TO",
+      pmtPostType: "PMT_POST_TYPE",
+      isReviewed: "IS_REVIEWED",
+      appealStatus: "APPEAL_STATUS",
+      markAsDenied: "MARK_AS_DENIED",
+      scaAmount: "SCA_AMOUNT",
+      hasAlert: "HAS_ALERT",
+      isHold: "IS_HOLD",
+      clinicCptId: "CLINIC_CPT_ID",
+      statusUpdatedDate: "STATUS_UPDATED_DATE",
+      apptType: "APPT_TYPE",
+      notes: "NOTES",
+      createdUserId: "CREATED_USER_ID",
+      createdDate: "CREATED_DATE",
+      ownerId: "OWNER_ID",
+      renderingProviderId: "RENDERING_PROVIDER_ID",
+      renderingProviderName: "RENDERING_PROVIDER_NAME",
+      ownerName: "OWNER_NAME",
+      appointmentType: "APPOINTMENT_TYPE",
+      dueDate: "DUE_DATE",
+      locked: "LOCKED",
+    };
+
+    for (const [key, value] of Object.entries(req.body)) {
+      if (key !== "claimId" && value !== undefined && value !== null) {
+        const column = columnMap[key];
+        if (column) {
+          updateFields.push(`${column} = ?`);
+          queryParams.push(value);
+        }
+      }
+    }
+
+    // If no fields to update, respond with an appropriate message
+    if (updateFields.length === 0) {
+      return res.status(400).json({
+        responseCode: 1,
+        responseType: 1,
+        data: [],
+        error: "No fields to update",
+        accessToken: null,
+      });
+    }
+
+    queryParams.push(claimId); // Add claimId as the last parameter
 
     const query = `
       UPDATE ${TABLE} 
-      SET
-        CLINIC_ID = ?,
-        PATIENT_PENDING = ?,
-        APPOINTMENT_TYPE = ?,
-        STATUS = ?,
-        FACILITY_NAME = ?,
-        PRIMARY_PAYER_ID = ?,
-        BILLED = ?,
-        DOS = ?,
-        MRN = ?,
-        PROVIDER_NAME = ?,
-        PATIENT_NAME = ?,
-        PROVIDER_ID = ?,
-        VISIT_ID = ?,
-        PRIMARY_PAYER_NAME = ?,
-        PRIMARY_PENDING = ?,
-        APPT_TYPE = ?
+      SET ${updateFields.join(", ")}
       WHERE CLAIM_ID = ?
     `;
 
-    const queryParams = [
-      clinicId,
-      patientPending,
-      appointmentType,
-      status,
-      facilityName,
-      primaryPayerId,
-      billed,
-      dos,
-      mrn,
-      providerName,
-      patientName,
-      providerId,
-      visitId,
-      primaryPayerName,
-      primaryPending,
-      apptType,
-      claimId,
-    ];
-
     await executeQuery(query, queryParams);
 
-    res.status(200).json({ message: "Claim updated successfully" });
+    res.status(200).json({
+      responseCode: 0,
+      responseType: 0,
+      data: { message: "Claim updated successfully" },
+      error: null,
+      accessToken: null,
+    });
   } catch (error) {
     console.error("Database query error:", error);
-    res.status(500).send("Internal Server Error");
+    res.status(500).json({
+      responseCode: 1,
+      responseType: 1,
+      data: [],
+      error: "Internal Server Error",
+      accessToken: null,
+    });
   }
 };
+
+// export const updateClaimController = async (req, res) => {
+//   try {
+//     const {
+//       claimId,
+//       clinicId,
+//       patientPending,
+//       appointmentType,
+//       status,
+//       facilityName,
+//       primaryPayerId,
+//       billed,
+//       dos,
+//       mrn,
+//       providerName,
+//       patientName,
+//       providerId,
+//       visitId,
+//       primaryPayerName,
+//       primaryPending,
+//       apptType,
+//     } = req.body;
+
+//     if (!claimId) {
+//       return res.status(400).json({
+//         responseCode: 1,
+//         responseType: 1,
+//         data: [],
+//         error: "Claim ID is required",
+//         accessToken: null,
+//       });
+//     }
+
+//     // Check if the claimId exists
+//     const checkQuery = `
+//       SELECT COUNT(*) AS count 
+//       FROM ${TABLE}
+//       WHERE CLAIM_ID = ?
+//     `;
+//     const checkResult = await executeQuery(checkQuery, [claimId]);
+
+//     if (checkResult[0].count === 0) {
+//       return res.status(404).json({
+//         responseCode: 1,
+//         responseType: 1,
+//         data: [],
+//         error: "Claim ID not found",
+//         accessToken: null,
+//       });
+//     }
+
+//     const query = `
+//       UPDATE ${TABLE} 
+//       SET
+//         CLINIC_ID = ?,
+//         PATIENT_PENDING = ?,
+//         APPOINTMENT_TYPE = ?,
+//         STATUS = ?,
+//         FACILITY_NAME = ?,
+//         PRIMARY_PAYER_ID = ?,
+//         BILLED = ?,
+//         DOS = ?,
+//         MRN = ?,
+//         PROVIDER_NAME = ?,
+//         PATIENT_NAME = ?,
+//         PROVIDER_ID = ?,
+//         VISIT_ID = ?,
+//         PRIMARY_PAYER_NAME = ?,
+//         PRIMARY_PENDING = ?,
+//         APPT_TYPE = ?
+//       WHERE CLAIM_ID = ?
+//     `;
+
+//     const queryParams = [
+//       clinicId,
+//       patientPending,
+//       appointmentType,
+//       status,
+//       facilityName,
+//       primaryPayerId,
+//       billed,
+//       dos,
+//       mrn,
+//       providerName,
+//       patientName,
+//       providerId,
+//       visitId,
+//       primaryPayerName,
+//       primaryPending,
+//       apptType,
+//       claimId,
+//     ];
+
+//     await executeQuery(query, queryParams);
+
+//     res.status(200).json({
+//       responseCode: 0,
+//       responseType: 0,
+//       data: { message: "Claim updated successfully" },
+//       error: null,
+//       accessToken: null,
+//     });
+//   } catch (error) {
+//     console.error("Database query error:", error);
+//     res.status(500).json({
+//       responseCode: 1,
+//       responseType: 1,
+//       data: [],
+//       error: "Internal Server Error",
+//       accessToken: null,
+//     });
+//   }
+// };
 
 //delete claim
 export const deleteClaimController = async (req, res) => {
@@ -332,7 +582,13 @@ export const deleteClaimController = async (req, res) => {
     const { claimId } = req.params;
 
     if (!claimId) {
-      return res.status(400).json({ message: "claim ID is required" });
+      return res.status(400).json({
+        responseCode: 1,
+        responseType: 1,
+        data: [],
+        error: "Claim ID is required",
+        accessToken: null,
+      });
     }
 
     // Check if the claimId exists
@@ -344,7 +600,13 @@ export const deleteClaimController = async (req, res) => {
     const checkResult = await executeQuery(checkQuery, [claimId]);
 
     if (checkResult[0].count === 0) {
-      return res.status(404).send({ message: "Claim ID not found" });
+      return res.status(404).json({
+        responseCode: 1,
+        responseType: 1,
+        data: [],
+        error: "Claim ID not found",
+        accessToken: null,
+      });
     }
 
     // Proceed with deletion if claimId exists
@@ -355,9 +617,21 @@ export const deleteClaimController = async (req, res) => {
 
     await executeQuery(deleteQuery, [claimId]);
 
-    res.status(200).send({ message: "Claim deleted successfully" });
+    res.status(200).json({
+      responseCode: 0,
+      responseType: 0,
+      data: { message: "Claim deleted successfully" },
+      error: null,
+      accessToken: null,
+    });
   } catch (error) {
     console.error("Database query error:", error);
-    res.status(500).send("Internal Server Error");
+    res.status(500).json({
+      responseCode: 1,
+      responseType: 1,
+      data: [],
+      error: "Internal Server Error",
+      accessToken: null,
+    });
   }
 };

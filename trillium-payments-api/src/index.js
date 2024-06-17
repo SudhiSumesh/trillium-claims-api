@@ -12,7 +12,7 @@ const corsOptions = {
   origin: process.env.CLIENT_ENDPOINT,
   optionsSuccessStatus: 200,
 };
-process.env.CLIENT_ENDPOINT;
+
 //Middleware
 // Use Helmet!
 app.use(helmet());
