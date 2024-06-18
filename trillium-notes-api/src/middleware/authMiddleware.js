@@ -1,6 +1,7 @@
 import axios from "axios";
 import dotenv from "dotenv";
 dotenv.config();
+
 export const authenticateUser = async (req, res, next) => {
   try {
     const token = req.headers.authorization; // Assuming the header is in the format "Bearer <token>"
@@ -15,33 +16,19 @@ export const authenticateUser = async (req, res, next) => {
         },
       }
     );
-    // console.log(
-    //   response.data,
-    //   "res form auth service ::::::::::::::::::::::::::::::::::::::::::::::::"
-    // );
+    console.log(
+      response.data,
+      "res form auth service ::::::::::::::::::::::::::::::::::::::::::::::::"
+    );
     if (response.data.valid) {
         console.log(response.data.user);
     // req.user = response.data.user; // Attach user information to the request object
       next();
     } else {
-      res.status(401).json({
-        responseCode: 1,
-        responseType: 1,
-        data: [],
-        error: null,
-        accessToken: null,
-        error: "Unauthorized access",
-      });;
+      res.status(401).json({ error: "Unauthorized" });
     }
   } catch (error) {
     console.log(error);
-     res.status(401).json({
-       responseCode: 1,
-       responseType: 1,
-       data: [],
-       error: null,
-       accessToken: null,
-       error: "Unauthorized access ..",
-     });
+    res.status(401).json({ error: "Unauthorized " });
   }
 };

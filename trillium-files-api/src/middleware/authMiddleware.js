@@ -20,28 +20,14 @@ export const authenticateUser = async (req, res, next) => {
     //   "res form auth service ::::::::::::::::::::::::::::::::::::::::::::::::"
     // );
     if (response.data.valid) {
-        console.log(response.data.user);
+
     // req.user = response.data.user; // Attach user information to the request object
       next();
     } else {
-      res.status(401).json({
-        responseCode: 1,
-        responseType: 1,
-        data: [],
-        error: null,
-        accessToken: null,
-        error: "Unauthorized access",
-      });;
+      res.status(401).json({ error: "Unauthorized" });
     }
   } catch (error) {
     console.log(error);
-     res.status(401).json({
-       responseCode: 1,
-       responseType: 1,
-       data: [],
-       error: null,
-       accessToken: null,
-       error: "Unauthorized access ..",
-     });
+    res.status(401).json({ error: "Unauthorized " });
   }
 };

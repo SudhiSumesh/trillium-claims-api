@@ -69,9 +69,9 @@ export const addNoteController = async (req, res) => {
       !clinicId ||
       !visitId ||
       !claimId ||
-      !userId ||
+      // !userId ||
       !note ||
-      !appointmentId ||
+      // !appointmentId ||
       !patientId
     ) {
       return res.status(400).json({

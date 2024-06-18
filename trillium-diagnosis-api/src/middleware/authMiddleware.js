@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 dotenv.config();
 export const authenticateUser = async (req, res, next) => {
   try {
+    // console.log('inside auth mid :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::');
     const token = req.headers.authorization; // Assuming the header is in the format "Bearer <token>"
     // console.log(token, "Authorization token");
     // Send the token to the authentication microservice for validation
@@ -20,10 +21,11 @@ export const authenticateUser = async (req, res, next) => {
     //   "res form auth service ::::::::::::::::::::::::::::::::::::::::::::::::"
     // );
     if (response.data.valid) {
-        console.log(response.data.user);
-    // req.user = response.data.user; // Attach user information to the request object
+      console.log(response.data.user);
+      // req.user = response.data.user; // Attach user information to the request object
       next();
     } else {
+      console.log(error);
       res.status(401).json({
         responseCode: 1,
         responseType: 1,
@@ -31,17 +33,17 @@ export const authenticateUser = async (req, res, next) => {
         error: null,
         accessToken: null,
         error: "Unauthorized access",
-      });;
+      });
     }
   } catch (error) {
     console.log(error);
-     res.status(401).json({
-       responseCode: 1,
-       responseType: 1,
-       data: [],
-       error: null,
-       accessToken: null,
-       error: "Unauthorized access ..",
-     });
+    res.status(401).json({
+      responseCode: 1,
+      responseType: 1,
+      data: [],
+      error: null,
+      accessToken: null,
+      error: "Unauthorized access ..",
+    });
   }
 };
