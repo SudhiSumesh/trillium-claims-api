@@ -12,7 +12,7 @@ export const loginController = async (req, res) => {
         accessToken: null,
       });
     }
-    const token = await getToken(userName, password);
+    const token = await getToken(userName, password, clinicId);
     res.json({
       responseCode: 0,
       responseType: 0,
@@ -22,7 +22,7 @@ export const loginController = async (req, res) => {
     });
   } catch (error) {
     console.log(error, "name");
-    if (error.name === "RoleError") {
+    if (error.name === "RoleError" || error.name === "ClinicIdError") {
       res.status(403).json({
         responseCode: 1,
         responseType: 1,

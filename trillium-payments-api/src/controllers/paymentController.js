@@ -9,44 +9,45 @@ const PROCEDURE_TABLE = process.env.PROCEDURE_TABLE;
 
 export const paymentSummaryController = async (req, res) => {
   try {
-    const { claimId } = req.query;
+    const { visitId } = req.query;
 
-    if (!claimId) {
+    if (!visitId) {
       return res.status(400).json({
         responseCode: 1,
         responseType: 1,
         data: [],
-        error: "Procedure ID is required",
+        error: "cliam ID is required",
         accessToken: null,
       });
     }
 
-    // Check if the claimId exists
+    // Check if the VISITId exists
     const checkQuery = `
       SELECT COUNT(*) AS count 
       FROM ${PROCEDURE_TABLE} 
-      WHERE CLAIM_ID = ?
+      WHERE VISIT_ID = ?
     `;
-    const checkResult = await executeQuery(checkQuery, [claimId]);
+    const checkResult = await executeQuery(checkQuery, [visitId]);
 
     if (checkResult[0].count === 0) {
       return res.status(404).json({
         responseCode: 1,
         responseType: 1,
         data: [],
-        error: "Procedure ID not found",
+        error: "visistId not found",
         accessToken: null,
       });
     }
 
     // Fetch  data from the Procedure table using claimId
     const query = `
-      SELECT PROCEDURE_CODE,UNIT,FEE,ADJUSTMENT,PRIMARY_PAID,SECONDARY_PAID,TERTIARY_PAID,PATIENT_PAID
+      SELECT PROCEDURE_ID ,PROCEDURE_CODE,UNIT,FEE,ADJUSTMENT,PRIMARY_PAID,SECONDARY_PAID,TERTIARY_PAID,PATIENT_PAID
       FROM ${PROCEDURE_TABLE} 
-      WHERE CLAIM_ID = ?
+      WHERE VISIT_ID = ?
     `;
-    const results = await executeQuery(query, [claimId]);
+    const results = await executeQuery(query, [visitId]);
     const formattedResults = results.map((row) => ({
+      procedureId:row.PROCEDURE_ID,
       cptCode: row.PROCEDURE_CODE,
       billed: row.UNIT * row.FEE,
       adjusted: row.ADJUSTMENT,

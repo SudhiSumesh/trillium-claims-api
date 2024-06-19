@@ -14,7 +14,13 @@ class RoleError extends Error {
   }
 }
 
-export const getToken = async (username, password) => {
+class ClinicIdError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "ClinicIdError";
+  }
+}
+export const getToken = async (username, password, clinicId) => {
   const tokenConfig = {
     client_id: process.env.KEYCLOAK_CLIENT_ID,
     client_secret: process.env.KEYCLOAK_CLIENT_SECRET || "default-secret",
@@ -33,16 +39,21 @@ export const getToken = async (username, password) => {
       }
     );
 
-    // Decode the token to check roles
+    // Decode the token to check roles and clinicId
     const decodedToken = jwt.decode(data.access_token);
     const roles = decodedToken.realm_access?.roles || [];
-
+    const userClinicId = decodedToken?.clinicId;
+    // console.log(userClinicId);
     if (!roles.includes("BILLER")) {
       throw new RoleError(
-        'Access denied: User does not have the required role.'
+        "Access denied: User does not have the required role."
       );
     }
-
+    if (userClinicId !== clinicId) {
+      throw new ClinicIdError(
+        "Access denied: User does not belong to the specified clinic."
+      );
+    }
     return data;
   } catch (error) {
     if (error.response) {
@@ -54,6 +65,8 @@ export const getToken = async (username, password) => {
       );
     } else if (error instanceof RoleError) {
       throw error;
+    } else if (error instanceof ClinicIdError) {
+      throw error
     } else {
       // Network or other errors
       throw new Error(`Failed to retrieve user token: ${error.message}`);
