@@ -24,10 +24,14 @@ export const authenticateUser = async (req, res, next) => {
     // req.user = response.data.user; // Attach user information to the request object
       next();
     } else {
-      res.status(401).json({ error: "Unauthorized" });
+      res
+        .status(401)
+        .json({ responseCode: 117, responseType: 117, error: "Unauthorized" });
     }
   } catch (error) {
     console.log(error);
-    res.status(401).json({ error: "Unauthorized " });
+    res
+      .status(401)
+      .json({ responseCode: 117, responseType: 117, error: "Unauthorized" });
   }
 };

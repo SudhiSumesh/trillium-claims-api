@@ -38,9 +38,6 @@ export const checkAuthorization = (requiredRole) => {
           error: "Access denied: Invalid or insufficient permissions",
         });
       }
-
-      // Optionally attach the decoded token to the request
-      //   req.user = response.data;
       next();
     } catch (error) {
       console.error("Token validation error:", error);

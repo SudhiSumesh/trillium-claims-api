@@ -52,52 +52,6 @@ export const getFilesController = async (req, res) => {
   }
 };
 
-// export const getFilesController = async (req, res) => {
-//   try {
-//     const { patientId } = req.query;
-
-//     if (!patientId) {
-//       return res.status(400).json({
-//         responseCode: 1,
-//         responseType: 1,
-//         data: [],
-//         error: "Claim ID is required",
-//         accessToken: null,
-//         // message: "Claim ID is required",
-//       });
-//     }
-
-//     const query = `SELECT IMAGE_ID, FILE_NAME,IMAGE_DATE, IMAGE_TYPE, FILE_TYPE FROM ${TABLE} WHERE PATIENT_ID = ?`;
-//     const results = await executeQuery(query, [patientId]);
-
-//     const formattedResults = results.map((row) => ({
-//       fileId: row.IMAGE_ID,
-//       fileName: row.FILE_NAME,
-//       // filePath: row.FILE_PATH,
-//       fileType: row.FILE_TYPE,
-//       fileDate: row.IMAGE_DATE,
-//       imageType: row.IMAGE_TYPE,
-//     }));
-
-//     res.status(200).json({
-//       responseCode: 0,
-//       responseType: 0,
-//       data: formattedResults,
-//       error: null,
-//       accessToken: null,
-//     });
-//   } catch (error) {
-//     console.error("Database query error:", error);
-//     res.status(500).json({
-//       responseCode: 1,
-//       responseType: 1,
-//       data: [],
-//       error: "Internal Server Error",
-//       accessToken: null,
-//     });
-//   }
-// };
-
 //add file
 export const addFileController = async (req, res) => {
   try {

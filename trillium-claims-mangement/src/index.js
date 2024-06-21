@@ -22,12 +22,6 @@ app.use(express.json());
 // API routes
 app.use("/api/v1",claimsRoutes)
 
-
-// Error handling middleware (uncomment after implemented)
-// import { notFound } from "./src/middlewares/notFound.js";
-// import { handleError } from "./src/middlewares/handleError.js";
-// app.use(notFound);
-// app.use(handleError);
 app.listen(port, () => {
   console.log(`server running on port ${port}`);
 });

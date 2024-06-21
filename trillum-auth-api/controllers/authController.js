@@ -35,7 +35,7 @@ export const loginController = async (req, res) => {
         responseCode: 1,
         responseType: 1,
         data: [],
-        error: "Invalid credentials",
+        error: error?.message || "Invalid credentials",
         accessToken: null,
       });
     }

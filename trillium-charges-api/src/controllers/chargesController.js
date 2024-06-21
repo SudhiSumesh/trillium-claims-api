@@ -9,7 +9,7 @@ export const chargesController = async (req, res) => {
   try {
     const { claimId } = req.params;
     // console.log(claimId);
-    if (!claimId || claimId === null || claimId === undefined) {
+    if (!claimId) {
       return res.status(400).json({
         responseCode: 1,
         responseType: 1,
@@ -21,7 +21,7 @@ export const chargesController = async (req, res) => {
     // Check if the claimId exists
     const checkQuery = `
       SELECT COUNT(*) AS count 
-      FROM  visit_procedure 
+      FROM  ${TABLE} 
       WHERE CLAIM_ID = ?
     `;
     const checkResult = await executeQuery(checkQuery, [claimId]);
@@ -77,7 +77,7 @@ export const chargesController = async (req, res) => {
       accessToken: null,
     });
   } catch (error) {
-    console.error("Database query error");
+    console.error("Database query error",error);
     res.status(500).json({
       responseCode: 1,
       responseType: 1,
@@ -201,7 +201,7 @@ export const addChargeController = async (req, res) => {
       data: "Charge added successfully",
       error: null,
       accessToken: null,
-      message: "Charge added successfully",
+      // message: "Charge added successfully",
     });
   } catch (error) {
     console.error("Database query error:", error);
@@ -325,143 +325,20 @@ export const updateChargeController = async (req, res) => {
   }
 };
 
-// export const updateChargeController = async (req, res) => {
-//   try {
-//     const {
-//       procedureId,
-//       cptID, // procedureCodeId
-//       cptCode, //procedureCode
-//       unit,
-//       fee,
-//       amount,
-//       pos,
-//       tos,
-//       ndcNumber,
-//       ndcUnits,
-//       ndcMeasure,
-//       comments,
-//       sequenceNum,
-//       descript,
-//       diagnosisPointer1,
-//       diagnosisPointer2,
-//       diagnosisPointer3,
-//       diagnosisPointer4,
-//       diagnosisPointer5,
-//       diagnosisPointer6,
-//       diagnosisPointer7,
-//       diagnosisPointer8,
-//       modifier1,
-//       modifier2,
-//       modifier3,
-//       modifier4,
-//     } = req.body;
-
-//     if (!procedureId) {
-//       return res.status(400).json({ message: "Procedure ID is required" });
-//     }
-//     // Check if the procedureId exists
-//     const checkQuery = `
-//       SELECT COUNT(*) AS count
-//       FROM ${TABLE}
-//       WHERE PROCEDURE_ID = ?
-//     `;
-//     const checkResult = await executeQuery(checkQuery, [procedureId]);
-
-//     if (checkResult[0].count === 0) {
-//       return res.status(404).json({ message: "Procedure ID not found" });
-//     }
-//     const query = `
-//       UPDATE ${TABLE}
-//       SET
-//         PROCEDURE_CODE_ID = ?,
-//         PROCEDURE_CODE = ?,
-//         UNIT = ?,
-//         FEE = ?,
-//         AMOUNT = ?,
-//         POS = ?,
-//         TOS = ?,
-//         NDC_NUMBER = ?,
-//         NDC_UNITS = ?,
-//         NDC_MEASURE = ?,
-//         COMMENTS = ?,
-//         SEQUENCE_NUM = ?,
-//         DESCRIPT = ?,
-//         DIAGNOSIS_POINTER1 = ?,
-//         DIAGNOSIS_POINTER2 = ?,
-//         DIAGNOSIS_POINTER3 = ?,
-//         DIAGNOSIS_POINTER4 = ?,
-//         DIAGNOSIS_POINTER5 = ?,
-//         DIAGNOSIS_POINTER6 = ?,
-//         DIAGNOSIS_POINTER7 = ?,
-//         DIAGNOSIS_POINTER8 = ?,
-//         MODIFIER1 = ?,
-//         MODIFIER2 = ?,
-//         MODIFIER3 = ?,
-//         MODIFIER4 = ?
-//       WHERE PROCEDURE_ID = ?
-//     `;
-
-//     const queryParams = [
-//       cptID || 0, // procedureCodeId
-//       cptCode || "", // procedureCode
-//       unit || 0,
-//       fee || 0,
-//       amount || 0,
-//       pos || "",
-//       tos || "",
-//       ndcNumber || "",
-//       ndcUnits || "",
-//       ndcMeasure || 0,
-//       comments || "",
-//       sequenceNum || 0,
-//       descript || "",
-//       diagnosisPointer1 || 0,
-//       diagnosisPointer2 || 0,
-//       diagnosisPointer3 || 0,
-//       diagnosisPointer4 || 0,
-//       diagnosisPointer5 || 0,
-//       diagnosisPointer6 || 0,
-//       diagnosisPointer7 || 0,
-//       diagnosisPointer8 || 0,
-//       modifier1 || "",
-//       modifier2 || "",
-//       modifier3 || "",
-//       modifier4 || "",
-//       procedureId,
-//     ];
-
-//     await executeQuery(query, queryParams);
-
-//     res.status(200).json({ message: "Charge updated successfully" });
-//   } catch (error) {
-//     console.error("Database query error:", error);
-//     res.status(500).json({
-//       responseCode: 1,
-//       responseType: 1,
-//       data: [],
-//       error: "Internal Server Error",
-//       accessToken: null,
-//     });
-//   }
-// };
-
 //delete charges
-
 export const deleteChargeController = async (req, res) => {
   try {
     const { procedureId } = req.params;
 
     if (!procedureId) {
-      return res
-        .status(400)
-        .json({
-          responseCode: 1,
-          responseType: 1,
-          data: [],
-          error: "Procedure ID is required",
-          accessToken: null,
-          message: "Procedure ID is required",
-        });
+      return res.status(400).json({
+        responseCode: 1,
+        responseType: 1,
+        data: [],
+        error: "Procedure ID is required",
+        accessToken: null,
+        message: "Procedure ID is required",
+      });
     }
 
     // Check if the procedureId exists
@@ -473,16 +350,14 @@ export const deleteChargeController = async (req, res) => {
     const checkResult = await executeQuery(checkQuery, [procedureId]);
 
     if (checkResult[0].count === 0) {
-      return res
-        .status(404)
-        .json({
-          responseCode: 1,
-          responseType: 1,
-          data: [],
-          error: "Procedure ID not found",
-          accessToken: null,
-          message: "Procedure ID not found",
-        });
+      return res.status(404).json({
+        responseCode: 1,
+        responseType: 1,
+        data: [],
+        error: "Procedure ID not found",
+        accessToken: null,
+        message: "Procedure ID not found",
+      });
     }
 
     const query = `

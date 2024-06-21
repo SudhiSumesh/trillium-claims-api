@@ -21,14 +21,13 @@ export const authenticateUser = async (req, res, next) => {
     //   "res form auth service ::::::::::::::::::::::::::::::::::::::::::::::::"
     // );
     if (response.data.valid) {
-      console.log(response.data.user);
       // req.user = response.data.user; // Attach user information to the request object
       next();
     } else {
       console.log(error);
       res.status(401).json({
-        responseCode: 1,
-        responseType: 1,
+        responseCode: 117,
+        responseType: 117,
         data: [],
         error: null,
         accessToken: null,
@@ -38,8 +37,8 @@ export const authenticateUser = async (req, res, next) => {
   } catch (error) {
     console.log(error);
     res.status(401).json({
-      responseCode: 1,
-      responseType: 1,
+      responseCode: 117,
+      responseType: 117,
       data: [],
       error: null,
       accessToken: null,

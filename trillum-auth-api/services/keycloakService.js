@@ -59,7 +59,7 @@ export const getToken = async (username, password, clinicId) => {
     if (error.response) {
       // Keycloak-specific error handling
       throw new Error(
-        `Keycloak Error: ${
+        ` Error: ${
           error.response.data.error_description || error.message
         }`
       );
