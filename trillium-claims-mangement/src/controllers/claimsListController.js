@@ -284,22 +284,22 @@ export const updateClaimController = async (req, res) => {
     }
 
     // Check if the claimId exists
-    const checkQuery = `
-      SELECT COUNT(*) AS count 
-      FROM ${TABLE}
-      WHERE CLAIM_ID = ?
-    `;
-    const checkResult = await executeQuery(checkQuery, [claimId]);
+    // const checkQuery = `
+    //   SELECT COUNT(*) AS count 
+    //   FROM ${TABLE}
+    //   WHERE CLAIM_ID = ?
+    // `;
+    // const checkResult = await executeQuery(checkQuery, [claimId]);
 
-    if (checkResult[0].count === 0) {
-      return res.status(404).json({
-        responseCode: 1,
-        responseType: 1,
-        data: [],
-        error: "Claim ID not found",
-        accessToken: null,
-      });
-    }
+    // if (checkResult[0].count === 0) {
+    //   return res.status(404).json({
+    //     responseCode: 1,
+    //     responseType: 1,
+    //     data: [],
+    //     error: "Claim ID not found",
+    //     accessToken: null,
+    //   });
+    // }
 
     // Prepare the columns and values for the update query
     const updateFields = [];
@@ -424,22 +424,22 @@ export const deleteClaimController = async (req, res) => {
     }
 
     // Check if the claimId exists
-    const checkQuery = `
-      SELECT COUNT(*) AS count 
-      FROM ${TABLE}
-      WHERE CLAIM_ID = ?
-    `;
-    const checkResult = await executeQuery(checkQuery, [claimId]);
+    // const checkQuery = `
+    //   SELECT COUNT(*) AS count 
+    //   FROM ${TABLE}
+    //   WHERE CLAIM_ID = ?
+    // `;
+    // const checkResult = await executeQuery(checkQuery, [claimId]);
 
-    if (checkResult[0].count === 0) {
-      return res.status(404).json({
-        responseCode: 1,
-        responseType: 1,
-        data: [],
-        error: "Claim ID not found",
-        accessToken: null,
-      });
-    }
+    // if (checkResult[0].count === 0) {
+    //   return res.status(404).json({
+    //     responseCode: 1,
+    //     responseType: 1,
+    //     data: [],
+    //     error: "Claim ID not found",
+    //     accessToken: null,
+    //   });
+    // }
 
     // Proceed with deletion if claimId exists
     const deleteQuery = `
