@@ -19,23 +19,23 @@ export const chargesController = async (req, res) => {
       });
     }
     // Check if the claimId exists
-    const checkQuery = `
-      SELECT COUNT(*) AS count 
-      FROM  ${TABLE} 
-      WHERE CLAIM_ID = ?
-    `;
-    const checkResult = await executeQuery(checkQuery, [claimId]);
+    // const checkQuery = `
+    //   SELECT COUNT(*) AS count 
+    //   FROM  ${TABLE} 
+    //   WHERE CLAIM_ID = ?
+    // `;
+    // const checkResult = await executeQuery(checkQuery, [claimId]);
 
-    if (checkResult[0].count === 0) {
-      return res.status(404).json({
-        responseCode: 1,
-        responseType: 1,
-        data: [],
-        error: "Claim ID not found",
-        accessToken: null,
-        // message: "",
-      });
-    }
+    // if (checkResult[0].count === 0) {
+    //   return res.status(404).json({
+    //     responseCode: 1,
+    //     responseType: 1,
+    //     data: [],
+    //     error: "Claim ID not found",
+    //     accessToken: null,
+    //     // message: "",
+    //   });
+    // }
     const query = `SELECT PROCEDURE_ID ,PROCEDURE_CODE_ID ,PROCEDURE_CODE,UNIT,FEE,AMOUNT,POS,TOS,NDC_NUMBER,NDC_UNITS,NDC_MEASURE,COMMENTS,SEQUENCE_NUM,DESCRIPT ,DIAGNOSIS_POINTER1,DIAGNOSIS_POINTER2,DIAGNOSIS_POINTER3,DIAGNOSIS_POINTER4,DIAGNOSIS_POINTER5,DIAGNOSIS_POINTER6,DIAGNOSIS_POINTER7,DIAGNOSIS_POINTER8,MODIFIER1,MODIFIER2,MODIFIER3,MODIFIER4 FROM ${TABLE} WHERE CLAIM_ID = ?`;
 
     const results = await executeQuery(query, [claimId]);
@@ -232,19 +232,19 @@ export const updateChargeController = async (req, res) => {
     }
 
     // Check if the procedureId exists
-    const checkQuery = `SELECT COUNT(*) AS count FROM ${TABLE} WHERE PROCEDURE_ID = ?`;
-    const checkResult = await executeQuery(checkQuery, [procedureId]);
+    // const checkQuery = `SELECT COUNT(*) AS count FROM ${TABLE} WHERE PROCEDURE_ID = ?`;
+    // const checkResult = await executeQuery(checkQuery, [procedureId]);
 
-    if (checkResult[0].count === 0) {
-      return res.status(404).json({
-        responseCode: 1,
-        responseType: 1,
-        data: [],
-        error: "Procedure ID not found",
-        accessToken: null,
-        message: "Procedure ID not found",
-      });
-    }
+    // if (checkResult[0].count === 0) {
+    //   return res.status(404).json({
+    //     responseCode: 1,
+    //     responseType: 1,
+    //     data: [],
+    //     error: "Procedure ID not found",
+    //     accessToken: null,
+    //     message: "Procedure ID not found",
+    //   });
+    // }
 
     // Map request body to database columns
     const columnMap = {
@@ -342,23 +342,23 @@ export const deleteChargeController = async (req, res) => {
     }
 
     // Check if the procedureId exists
-    const checkQuery = `
-      SELECT COUNT(*) AS count 
-      FROM ${TABLE} 
-      WHERE PROCEDURE_ID = ?
-    `;
-    const checkResult = await executeQuery(checkQuery, [procedureId]);
+    // const checkQuery = `
+    //   SELECT COUNT(*) AS count 
+    //   FROM ${TABLE} 
+    //   WHERE PROCEDURE_ID = ?
+    // `;
+    // const checkResult = await executeQuery(checkQuery, [procedureId]);
 
-    if (checkResult[0].count === 0) {
-      return res.status(404).json({
-        responseCode: 1,
-        responseType: 1,
-        data: [],
-        error: "Procedure ID not found",
-        accessToken: null,
-        message: "Procedure ID not found",
-      });
-    }
+    // if (checkResult[0].count === 0) {
+    //   return res.status(404).json({
+    //     responseCode: 1,
+    //     responseType: 1,
+    //     data: [],
+    //     error: "Procedure ID not found",
+    //     accessToken: null,
+    //     message: "Procedure ID not found",
+    //   });
+    // }
 
     const query = `
       DELETE FROM ${TABLE} 
