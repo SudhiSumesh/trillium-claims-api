@@ -18,22 +18,22 @@ export const diagnosisController = async (req, res) => {
       });
     }
     // Check if the visitId exists
-    const checkQuery = `
-      SELECT COUNT(*) AS count 
-      FROM ${TABLE} 
-      WHERE VISIT_ID = ?
-    `;
-    const checkResult = await executeQuery(checkQuery, [visitId]);
+    // const checkQuery = `
+    //   SELECT COUNT(*) AS count 
+    //   FROM ${TABLE} 
+    //   WHERE VISIT_ID = ?
+    // `;
+    // const checkResult = await executeQuery(checkQuery, [visitId]);
 
-    if (checkResult[0].count === 0) {
-      return res.status(404).json({
-        responseCode: 1,
-        responseType: 1,
-        data: [],
-        error: "Visit Id not found",
-        accessToken: null,
-      });
-    }
+    // if (checkResult[0].count === 0) {
+    //   return res.status(404).json({
+    //     responseCode: 1,
+    //     responseType: 1,
+    //     data: [],
+    //     error: "Visit Id not found",
+    //     accessToken: null,
+    //   });
+    // }
 
     const query = `SELECT DIAGNOSIS_ID, ICD_ID_ONE, ICD_ID_TWO, ICD_ID_THREE, ICD_ID_FOUR, ICD_ID_FIVE, ICD_ID_SIX, ICD_ID_SEVEN, ICD_ID_EIGHT, ICD_CODE_ONE, ICD_CODE_TWO, ICD_CODE_THREE, ICD_CODE_FOUR, ICD_CODE_FIVE, ICD_CODE_SIX, ICD_CODE_SEVEN, ICD_CODE_EIGHT, ICD_CODE_ONE_DESCRIPTION, ICD_CODE_TWO_DESCRIPTION, ICD_CODE_THREE_DESCRIPTION, ICD_CODE_FOUR_DESCRIPTION, ICD_CODE_FIVE_DESCRIPTION, ICD_CODE_SIX_DESCRIPTION, ICD_CODE_SEVEN_DESCRIPTION, ICD_CODE_EIGHT_DESCRIPTION FROM ${TABLE} WHERE VISIT_ID= ?`;
 
