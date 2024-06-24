@@ -5,9 +5,6 @@
 Before you begin, ensure you have met the following requirements:
 
 - You have installed [Node.js](https://nodejs.org/) and [npm](https://www.npmjs.com/get-npm).
-- You have installed [MySQL](https://www.mysql.com/) or any other database if required by the microservices.
-- You have a working internet connection for downloading dependencies.
-
 * Installation
 
 To install the project dependencies, follow these steps for each microservice:
