@@ -6,7 +6,7 @@ import  authRoutes from './routes/authRoutes.js'
 dotenv.config();
 const app = express();
 
-const port = 3006 || process.env.SERVER_PORT;
+const port =  process.env.SERVER_PORT || 3006;
 
 const corsOptions = {
   origin: process.env.CLIENT_ENDPOINT,
