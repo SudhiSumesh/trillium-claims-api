@@ -13,7 +13,7 @@ To install the project dependencies, follow these steps for each microservice:
 
    ```bash
    git clone [url]
-   cd project-repository
+   cd [project-repository]
    ```
 
 2. **Navigate to each microservice directory and install dependencies:**
