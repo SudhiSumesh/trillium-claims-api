@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 import fileRoutes from './routes/fileRoutes.js'
 dotenv.config();
 const app = express();
-const port = 3004 || process.env.SERVER_PORT;
+const port = process.env.SERVER_PORT || 3004;
 
 const corsOptions = {
   origin: process.env.CLIENT_ENDPOINT,
